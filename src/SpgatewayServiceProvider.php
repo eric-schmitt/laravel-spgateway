@@ -48,9 +48,12 @@ class SpgatewayServiceProvider extends ServiceProvider
 
     protected function registerConfig()
     {
-        $this->publishes([
-            __DIR__ . '/../config/spgateway.php' => config_path('spgateway.php'),
-        ]);
+      $source = realpath(__DIR__.'/../config/spgateway.php');
+
+      if (class_exists('Illuminate\Foundation\Application', false)) {
+          $this->publishes([$source => config_path('spgateway.php')]);
+      }
+      $this->mergeConfigFrom($source, 'spgateway');
     }
 
     protected function registerResources()
