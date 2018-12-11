@@ -14,6 +14,9 @@ class Receipt
     private $triggerPostDataEncrypted;
     private $invalidPostData;
     private $invalidPostDataEncrypted;
+    private $MerchantID;
+    private $MerchantIV;
+    private $MerchantHash;
 
     public function __construct()
     {
@@ -47,8 +50,13 @@ class Receipt
      *
      * @return $this|array
      */
-    public function generate(array $params)
+    public function generate($MerchantID, $MerchantHash, $MerchantIV, array $params)
     {
+
+      $this->MerchantID = $MerchantID;
+      $this->MerchantIV = $MerchantIV;
+      $this->MerchantHash = $MerchantHash;
+
         $params['TaxRate'] = $params['TaxRate'] ?? 5;
         $params['Category'] = $params['Category'] ?? 'B2C';
 
@@ -138,12 +146,12 @@ class Receipt
     {
         $postDataEncrypted = $this->helpers->encryptPostData(
             $this->postData,
-            config('spgateway.receipt.HashKey'),
-            config('spgateway.receipt.HashIV')
+            $this->MerchantHash,
+            $this->MerchantIV
         );
 
         $this->postDataEncrypted = [
-            'MerchantID_' => config('spgateway.receipt.MerchantID'),
+            'MerchantID_' => $this->MerchantID,
             'PostData_'   => $postDataEncrypted,
         ];
 
@@ -219,12 +227,12 @@ class Receipt
         $postDataEncrypted = $this->helpers
             ->encryptPostData(
                 $this->triggerPostData,
-                config('spgateway.receipt.HashKey'),
-                config('spgateway.receipt.HashIV')
+                $this->MerchantHash,
+                $this->MerchantIV
             );
 
         $this->triggerPostDataEncrypted = [
-            'MerchantID_' => config('spgateway.receipt.MerchantID'),
+            'MerchantID_' => $this->MerchantID,
             'PostData_'   => $postDataEncrypted,
         ];
 
@@ -284,10 +292,10 @@ class Receipt
     private function encryptInvalid()
     {
         $postDataEncrypted
-            = $this->helpers->encryptPostData($this->invalidPostData);
+            = $this->helpers->encryptPostData($this->invalidPostData, $this->MerchantHash, $this->MerchantIV);
 
         $this->invalidPostDataEncrypted = [
-            'MerchantID_' => config('spgateway.receipt.MerchantID'),
+            'MerchantID_' => $this->MerchantID,
             'PostData_'   => $postDataEncrypted,
         ];
 
@@ -335,8 +343,8 @@ class Receipt
         ];
 
         $postDataEncrypted = [
-            'MerchantID_' => config('spgateway.receipt.MerchantID'),
-            'PostData_'   => $this->helpers->encryptPostData($postData),
+            'MerchantID_' => $this->MerchantID,
+            'PostData_'   => $this->helpers->encryptPostData($postData, $this->MerchantHash, $this->MerchantIV),
         ];
 
         $res = $this->helpers->sendPostRequest(

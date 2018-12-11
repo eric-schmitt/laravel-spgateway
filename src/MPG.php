@@ -11,6 +11,10 @@ class MPG
     private $helpers;
     private $postData;
     private $postDataEncrypted;
+    private $MerchantID;
+    private $MerchantIV;
+    private $MerchantHash;
+
 
     public function __construct()
     {
@@ -44,6 +48,9 @@ class MPG
         $amount,
         $email,
         $itemDesc,
+        $MerchantID,
+        $MerchantHash,
+        $MerchantIV,
         array $params = []
     ) {
         try {
@@ -59,11 +66,15 @@ class MPG
                     . $validator['message']);
             }
 
+            $this->MerchantID = $MerchantID;
+            $this->MerchantIV = $MerchantIV;
+            $this->MerchantHash = $MerchantHash;
+
             $postData = [
                 'Amt'             => $amount,
                 'ItemDesc'        => $itemDesc,
                 'Email'           => $email,
-                'MerchantID'      => config('spgateway.mpg.MerchantID'),
+                'MerchantID'      => $this->MerchantID,
                 'RespondType'     => 'JSON',
                 'TimeStamp'       => time(),
                 'Version'         => '1.4',
@@ -126,7 +137,7 @@ class MPG
         $tradeSha = $this->createMpgSHA256Encrypt($tradeInfo);
 
         $this->postDataEncrypted = [
-            'MerchantID' => env('SPGATEWAY_MERCHANT_ID'),
+            'MerchantID' => $this->merchantID,
             'TradeInfo'  => $tradeInfo,
             'TradeSha'   => $tradeSha,
             'Version'    => '1.4',
@@ -149,7 +160,16 @@ class MPG
                 'order'  => $this->postDataEncrypted
             ]);
     }
-    
+
+    public function retreiveOrder()
+    {
+        return
+            [
+                'apiUrl' => $this->apiUrl['MPG_API'],
+                'order'  => $this->postDataEncrypted
+            ];
+    }
+
     public function retreiveOrder()
     {
         return
@@ -346,8 +366,8 @@ class MPG
             $return_str = http_build_query($parameter);
         }
 
-        $key = config('spgateway.mpg.HashKey');
-        $iv = config('spgateway.mpg.HashIV');
+        $key = $this->MerchantHash;
+        $iv = $this->MerchantIV;
 
         return trim(bin2hex(openssl_encrypt($this->helpers->addPadding($return_str),
             'aes-256-cbc', $key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING,
@@ -356,8 +376,8 @@ class MPG
 
     private function createAES256decrypt($parameter = "")
     {
-        $key = config('spgateway.mpg.HashKey');
-        $iv = config('spgateway.mpg.HashIV');
+        $key = $this->MerchantHash;
+        $iv = $this->MerchantIV;
 
         return $this->stripPadding(openssl_decrypt(hex2bin($parameter),
             'aes-256-cbc', $key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING, $iv));
@@ -365,8 +385,8 @@ class MPG
 
     private function createMpgSHA256Encrypt($aes)
     {
-        $key = config('spgateway.mpg.HashKey');
-        $iv = config('spgateway.mpg.HashIV');
+        $key = $this->MerchantHash;
+        $iv = $this->MerchantIV;
 
         $data = "HashKey=$key&" . $aes . "&HashIV=$iv";
 
@@ -409,16 +429,23 @@ class MPG
      */
     public function search(
         $orderNo,
-        $amount
+        $amount,
+        $MerchantID,
+        $MerchantHash,
+        $MerchantIV,
     ) {
         $postData = [
-            'MerchantID'      => config('spgateway.mpg.MerchantID'),
+            'MerchantID'      => $this->merchantID,
             'Version'         => '1.1',
             'RespondType'     => 'JSON',
             'TimeStamp'       => time(),
             'MerchantOrderNo' => $orderNo,
             'Amt'             => $amount,
         ];
+
+        $this->MerchantID = $MerchantID;
+        $this->MerchantIV = $MerchantIV;
+        $this->MerchantHash = $MerchantHash;
 
         $postData['CheckValue'] = $this->generateTradeInfoCheckValue($orderNo,
             $amount);
@@ -444,11 +471,11 @@ class MPG
     private function generateTradeInfoCheckValue($orderNo, $amount)
     {
         $data = [
-            'IV'              => config('spgateway.mpg.HashIV'),
+            'IV'              => $this->MerchantIV,
             'Amt'             => $amount,
-            'MerchantID'      => config('spgateway.mpg.MerchantID'),
+            'MerchantID'      => $this->MerchantID,
             'MerchantOrderNo' => $orderNo,
-            'Key'             => config('spgateway.mpg.HashKey'),
+            'Key'             => $this->MerchantHash,
         ];
 
         $check_code_str = http_build_query($data);
