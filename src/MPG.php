@@ -425,6 +425,11 @@ class MPG
         $MerchantHash,
         $MerchantIV
     ) {
+
+      $this->MerchantID = $MerchantID;
+      $this->MerchantIV = $MerchantIV;
+      $this->MerchantHash = $MerchantHash;
+
         $postData = [
             'MerchantID'      => $this->merchantID,
             'Version'         => '1.1',
@@ -434,9 +439,6 @@ class MPG
             'Amt'             => $amount,
         ];
 
-        $this->MerchantID = $MerchantID;
-        $this->MerchantIV = $MerchantIV;
-        $this->MerchantHash = $MerchantHash;
 
         $postData['CheckValue'] = $this->generateTradeInfoCheckValue($orderNo,
             $amount);
