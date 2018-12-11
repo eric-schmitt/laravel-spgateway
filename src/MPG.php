@@ -431,7 +431,7 @@ class MPG
       $this->MerchantHash = $MerchantHash;
 
         $postData = [
-            'MerchantID'      => $this->merchantID,
+            'MerchantID'      => $this->MerchantID,
             'Version'         => '1.1',
             'RespondType'     => 'JSON',
             'TimeStamp'       => time(),
