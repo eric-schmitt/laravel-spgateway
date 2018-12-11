@@ -432,7 +432,7 @@ class MPG
         $amount,
         $MerchantID,
         $MerchantHash,
-        $MerchantIV,
+        $MerchantIV
     ) {
         $postData = [
             'MerchantID'      => $this->merchantID,
