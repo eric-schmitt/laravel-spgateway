@@ -170,15 +170,6 @@ class MPG
             ];
     }
 
-    public function retreiveOrder()
-    {
-        return
-            [
-                'apiUrl' => $this->apiUrl['MPG_API'],
-                'order'  => $this->postDataEncrypted
-            ];
-    }
-
     /**
      * 驗證表單
      *
