@@ -11,6 +11,9 @@ class Refund
     private $postData;
     private $postType;
     private $postDataEncrypted;
+    private $MerchantID;
+    private $MerchantIV;
+    private $MerchantHash;
 
     public function __construct()
     {
@@ -50,10 +53,18 @@ class Refund
         $amount,
         $notifyUrl = null,
         $delayed = false,
+        $MerchantID,
+        $MerchantHash,
+        $MerchantIV,
         $params = []
     ) {
+
+        $this->MerchantID = $MerchantID;
+        $this->MerchantIV = $MerchantIV;
+        $this->MerchantHash = $MerchantHash;
+
         $mpg = new MPG();
-        $tradeInfo = $mpg->search($orderNo, $amount);
+        $tradeInfo = $mpg->search($orderNo, $amount, $this->MerchantID, $this->MerchantHash, $this->MerchantIV);
         $tradeInfo = $tradeInfo->Result;
 
         if ($tradeInfo->TradeStatus === "1"
@@ -103,10 +114,10 @@ class Refund
      */
     private function encrypt()
     {
-        $PostData_ = $this->helpers->encryptPostData($this->postData);
+        $PostData_ = $this->helpers->encryptPostData($this->postData, $this->MerchantHash, $this->MerchantIv);
 
         $this->postDataEncrypted = [
-            'MerchantID_' => config('spgateway.mpg.MerchantID'),
+            'MerchantID_' => $this->MerchantID,
             'PostData_'   => $PostData_,
         ];
 
