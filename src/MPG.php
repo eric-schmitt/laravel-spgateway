@@ -51,7 +51,6 @@ class MPG
         $MerchantID,
         $MerchantHash,
         $MerchantIV,
-
         array $params = []
     ) {
         try {
