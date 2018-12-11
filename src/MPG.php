@@ -149,6 +149,15 @@ class MPG
                 'order'  => $this->postDataEncrypted
             ]);
     }
+    
+    public function retreiveOrder()
+    {
+        return
+            [
+                'apiUrl' => $this->apiUrl['MPG_API'],
+                'order'  => $this->postDataEncrypted
+            ];
+    }
 
     public function retreiveOrder()
     {
