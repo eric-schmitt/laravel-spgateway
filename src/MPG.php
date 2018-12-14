@@ -15,7 +15,6 @@ class MPG
     private $MerchantIV;
     private $MerchantHash;
 
-
     public function __construct()
     {
         $this->apiUrl = [];
