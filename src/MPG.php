@@ -136,7 +136,7 @@ class MPG
         $tradeSha = $this->createMpgSHA256Encrypt($tradeInfo);
 
         $this->postDataEncrypted = [
-            'MerchantID' => $this->merchantID,
+            'MerchantID' => $this->MerchantID,
             'TradeInfo'  => $tradeInfo,
             'TradeSha'   => $tradeSha,
             'Version'    => '1.4',

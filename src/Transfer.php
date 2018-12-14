@@ -27,7 +27,7 @@ class Transfer
     /**
      * 產生平台扣款指示必要欄位
      *
-     * @param      $merchantID
+     * @param      $MerchantID
      * @param      $amount
      * @param      $feeType
      * @param      $balanceType
@@ -35,7 +35,7 @@ class Transfer
      * @return $this|Transfer
      */
     public function generate(
-        $merchantID,
+        $MerchantID,
         $amount,
         $feeType,
         $balanceType
@@ -44,7 +44,7 @@ class Transfer
         $this->postData = [
             'Version'     => '1.0',
             'TimeStamp'   => time(),
-            'MerchantID'  => $merchantID,
+            'MerchantID'  => $MerchantID,
             'Amount'      => $amount,
             'FeeType'     => $feeType,
             'BalanceType' => $balanceType,
