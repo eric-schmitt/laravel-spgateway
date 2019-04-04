@@ -114,7 +114,7 @@ class Refund
      */
     private function encrypt()
     {
-        $PostData_ = $this->helpers->encryptPostData($this->postData, $this->MerchantHash, $this->MerchantIv);
+        $PostData_ = $this->helpers->encryptPostData($this->postData, $this->MerchantHash, $this->$MerchantIV);
 
         $this->postDataEncrypted = [
             'MerchantID_' => $this->MerchantID,
